@@ -1,2 +1,3 @@
-# memorizer
-Helps to memorise themes in a form of questions/answers. Knowledgebase is editing in Google Docs
+# Tank Battle
+Simple game for two players. There are two tanks on the battle field. Their task - to shoot each other.
+Tanks shoot in turn on button "Bang!"
