@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+<Button
+    android:layout_width="match_parent"
+    android:id="@+id/buttonBang"
+    android:text="@string/bang"
+    android:layout_height="wrap_content"/>
+<com.tikhonov.tanksBattle.BattleFieldView
+    android:layout_width="match_parent"
+    android:id="@+id/battleFieldView"
+    android:layout_height="match_parent"/>
+</LinearLayout>
