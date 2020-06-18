@@ -9,10 +9,14 @@ class BattleFieldActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_battle_field)
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        battleFieldView.newGame()
 
         buttonBang.setOnClickListener {
             battleFieldView.bang()
+        }
+
+        buttonNewGame.setOnClickListener {
+            battleFieldView.newGame()
         }
 
     }

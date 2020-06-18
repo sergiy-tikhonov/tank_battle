@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Танковий бій</string>
+    <string name="bang">Бах!</string>
+    <string name="newGame">Нова гра</string>
+</resources>

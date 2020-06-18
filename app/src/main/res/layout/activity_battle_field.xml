@@ -1,16 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:layout_height="match_parent">
-<Button
-    android:layout_width="match_parent"
-    android:id="@+id/buttonBang"
-    android:text="@string/bang"
-    android:layout_height="wrap_content"/>
-<com.tikhonov.tanksBattle.BattleFieldView
-    android:layout_width="match_parent"
-    android:id="@+id/battleFieldView"
-    android:layout_height="match_parent"/>
-</LinearLayout>
+
+    <Button
+        android:id="@+id/buttonNewGame"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/newGame"
+        app:layout_constraintEnd_toStartOf="@+id/buttonBang"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonBang"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/bang"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonNewGame"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.tikhonov.tanksBattle.BattleFieldView
+        android:id="@+id/battleFieldView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/colorGrey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonNewGame" />
+</androidx.constraintlayout.widget.ConstraintLayout>

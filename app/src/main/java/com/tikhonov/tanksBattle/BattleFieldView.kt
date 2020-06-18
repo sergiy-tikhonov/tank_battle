@@ -8,6 +8,7 @@ import android.view.View
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 enum class WhoseTurn {
     FIRST, SECOND
@@ -16,53 +17,92 @@ enum class WhoseTurn {
 class BattleFieldView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
 
     companion object {
-        val tankWidth = 200
-        val tankHeight = 200
-        val bulletRadius = 10f
+        const val tankWidth = 200
+        const val tankHeight = 200
+        const val bulletRadius = 10f
+        const val angleDelay = 0.2
     }
 
-    val tankPlayer1 = Tank().apply {
-        coordTank = CoordXY(200, 500)
-        coordBullet = CoordXY(0, 0)
-        bulletColor = Color.RED
-        bulletIsVisible = false
+    private val screenWidth = resources.displayMetrics.widthPixels
+    private val screenHeight = resources.displayMetrics.heightPixels
+
+    private val tankPlayer1 = Tank()
+    private val tankPlayer2 = Tank()
+
+    private lateinit var whoseTurn: WhoseTurn
+
+    private var startCoord = CoordXY()
+    private var endCoord = CoordXY()
+
+    init {
+        newGame()
     }
 
-    val tankPlayer2 = Tank().apply {
-        coordTank = CoordXY(600, 1000)
-        coordBullet = CoordXY(0, 0)
-        bulletColor = Color.BLUE
-        bulletIsVisible = false
+    private fun initTanks(){
+
+        val bitmapPlayer1Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player1)
+        val bitmapPlayer1Scaled = Bitmap.createScaledBitmap(bitmapPlayer1Original, tankWidth, tankHeight, false)
+
+        val randomX1 = Random.nextInt((screenWidth * 0.1).toInt(), (screenWidth * 0.3).toInt())
+        val randomY1 = Random.nextInt((screenHeight * 0.3).toInt(), (screenHeight * 0.8).toInt())
+        tankPlayer1.coordTank = CoordXY(randomX1, randomY1)
+
+        val randomX2 = Random.nextInt((screenWidth * 0.6).toInt(), (screenWidth * 0.8).toInt())
+        val randomY2 = Random.nextInt((screenHeight * 0.3).toInt(), (screenHeight * 0.8).toInt())
+        tankPlayer2.coordTank = CoordXY(randomX2, randomY2)
+
+        val bullet1StartX = tankPlayer1.coordTank.x + bitmapPlayer1Scaled.width
+        val bullet1StartY = tankPlayer1.coordTank.y + bitmapPlayer1Scaled.height * 7/20
+        tankPlayer1.apply {
+            coordBulletInitialOriginal = CoordXY(bullet1StartX, bullet1StartY)
+            coordBulletInitialActual = CoordXY(bullet1StartX, bullet1StartY)
+            coordBullet = CoordXY(bullet1StartX, bullet1StartY)
+            bulletColor = Color.RED
+            fromLeftToRight = true
+            bulletStep = 0
+            bitmapOriginal = bitmapPlayer1Scaled
+            bitmapActual = bitmapPlayer1Scaled
+            paint = Paint().apply { color = bulletColor }
+            width = tankWidth
+            height = tankHeight
+            this.bulletRadius = BattleFieldView.bulletRadius
+        }
+        val bitmapPlayer2Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player2)
+        val bitmapPlayer2Scaled = Bitmap.createScaledBitmap(bitmapPlayer2Original, tankWidth, tankHeight, false)
+        val bullet2StartX = tankPlayer2.coordTank.x
+        val bullet2StartY = tankPlayer2.coordTank.y + bitmapPlayer2Scaled.height * 6/20
+        tankPlayer2.apply {
+            coordBulletInitialOriginal = CoordXY(bullet2StartX, bullet2StartY)
+            coordBulletInitialActual = CoordXY(bullet2StartX, bullet2StartY)
+            coordBullet = CoordXY(bullet2StartX, bullet2StartY)
+            bulletColor = Color.BLUE
+            fromLeftToRight = false
+            bulletStep = 0
+            bitmapOriginal = bitmapPlayer2Scaled
+            bitmapActual = bitmapPlayer2Scaled
+            paint = Paint().apply { color = bulletColor }
+            width = tankWidth
+            height = tankHeight
+            this.bulletRadius = BattleFieldView.bulletRadius
+        }
+
     }
 
-    val paintPlayer1 = Paint().apply {
-        color = tankPlayer1.bulletColor
+    fun newGame(){
+        initTanks()
+        whoseTurn = WhoseTurn.FIRST
+        postInvalidate()
     }
-    val paintPlayer2 = Paint().apply {
-        color = tankPlayer2.bulletColor
-    }
-
-    var whoseTurn = WhoseTurn.FIRST
-
-    var tankBitmapPlayer1Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player1)
-    val tankBitmapPlayer1 = Bitmap.createScaledBitmap(tankBitmapPlayer1Original, tankWidth, tankHeight, false)
-
-    var tankBitmapPlayer2Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player2)
-    val tankBitmapPlayer2 = Bitmap.createScaledBitmap(tankBitmapPlayer2Original, tankWidth, tankHeight, false)
 
     fun bang(){
 
         if (tankPlayer1.bulletIsVisible || tankPlayer2.bulletIsVisible) return
 
-        val screenWidth =  resources.displayMetrics.widthPixels
         if (whoseTurn == WhoseTurn.FIRST) {
-            val startX = tankPlayer1.coordTank.x + tankBitmapPlayer1.width
-            val startY = tankPlayer1.coordTank.y + tankBitmapPlayer1.height * 7/20
+            tankPlayer1.prepareBullet()
             tankPlayer1.bulletIsVisible = true
-            tankPlayer1.coordBullet.y = startY
             GlobalScope.launch {
-                for (i in startX..screenWidth) {
-                    tankPlayer1.coordBullet.x = i
+                while (tankPlayer1.moveBullet(screenWidth, screenHeight)) {
                     postInvalidate()
                     delay(1)
                 }
@@ -71,13 +111,10 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
             }
         }
         else {
-            val startX = tankPlayer2.coordTank.x
-            val startY = tankPlayer2.coordTank.y + tankBitmapPlayer2.height * 6/20
+            tankPlayer2.prepareBullet()
             tankPlayer2.bulletIsVisible = true
-            tankPlayer2.coordBullet.y = startY
             GlobalScope.launch {
-                for (i in startX downTo 0) {
-                    tankPlayer2.coordBullet.x = i
+                while (tankPlayer2.moveBullet(screenWidth, screenHeight)) {
                     postInvalidate()
                     delay(1)
                 }
@@ -90,23 +127,35 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        canvas?.drawBitmap(tankBitmapPlayer1, tankPlayer1.coordTank.x.toFloat(), tankPlayer1.coordTank.y.toFloat(), paintPlayer1)
-        canvas?.drawBitmap(tankBitmapPlayer2, tankPlayer2.coordTank.x.toFloat(), tankPlayer2.coordTank.y.toFloat(), paintPlayer2)
-
-
-        if (tankPlayer1.bulletIsVisible) {
-            canvas?.drawCircle(tankPlayer1.coordBullet.x.toFloat(), tankPlayer1.coordBullet.y.toFloat(), bulletRadius, paintPlayer1)
+        with(tankPlayer1) {
+            draw(canvas)
+            drawBullet(canvas)
         }
-        if (tankPlayer2.bulletIsVisible) {
-            canvas?.drawCircle(tankPlayer2.coordBullet.x.toFloat(), tankPlayer2.coordBullet.y.toFloat(), bulletRadius, paintPlayer2)
+
+        with(tankPlayer2) {
+            draw(canvas)
+            drawBullet(canvas)
         }
 
     }
+
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_UP ->
             {
+                endCoord.x = event.x.toInt()
+                endCoord.y = event.y.toInt()
+                when (whoseTurn) {
+                    WhoseTurn.FIRST -> tankPlayer1.rotate(startCoord, endCoord)
+                    WhoseTurn.SECOND -> tankPlayer2.rotate(startCoord, endCoord)
+                }
+                postInvalidate()
+            }
+            MotionEvent.ACTION_DOWN ->
+            {
+                startCoord.x = event.x.toInt()
+                startCoord.y = event.y.toInt()
             }
         }
         return true
