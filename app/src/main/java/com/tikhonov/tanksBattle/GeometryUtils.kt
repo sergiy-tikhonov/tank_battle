@@ -15,11 +15,12 @@ object GeometryUtils {
         return angle * BattleFieldView.angleDelay
     }
 
+    fun calculateCurrentXY(xInitial:Int, yInitial:Int, step: Int, angle: Double, shotPower: Int): CoordXY {
 
+        val g = 0.05
 
-    fun calculateCurrentXY(xInitial:Int, yInitial:Int, step: Int, angle: Double): CoordXY {
-        val currentX =  xInitial + (step * cos(angle)).roundToInt()
-        val currentY =  yInitial + (step * sin(angle)).roundToInt()
+        val currentX =  xInitial + (step * cos(angle) * shotPower).roundToInt()
+        val currentY =  (yInitial + step * sin(angle) * shotPower + g * step.toFloat().pow(2) / 2).roundToInt()
         return CoordXY(currentX, currentY)
     }
 

@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Tanks Battle</string>
-    <string name="bang">Bang!</string>
+    <string name="bang">Fire !</string>
     <string name="newGame">New Game</string>
+    <string name="shotPower">Shot Power</string>
+    <string name="score" translatable="false">%1$d - %2$d</string>
 </resources>

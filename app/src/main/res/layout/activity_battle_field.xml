@@ -3,33 +3,97 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/rootLayout"
     android:layout_height="match_parent">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonNewGame"
-        android:layout_width="0dp"
+        style="@style/CommonButtonOutlined"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/newGame"
         app:layout_constraintEnd_toStartOf="@+id/buttonBang"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/colorWhite" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonBang"
-        android:layout_width="0dp"
+        style="@style/CommonButtonOutlined"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/bang"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewPlayer1"
         app:layout_constraintStart_toEndOf="@+id/buttonNewGame"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/colorWhite" />
+
+    <ImageView
+        android:id="@+id/imageViewPlayer1"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        app:layout_constraintStart_toEndOf="@+id/buttonBang"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/tank_player1" />
+
+    <TextView
+        android:id="@+id/textViewScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 - 0"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageViewPlayer2"
+        app:layout_constraintStart_toEndOf="@+id/imageViewPlayer1"
+        tools:layout_editor_absoluteY="16dp"
+        android:textSize="24sp"
+        tools:text="0 - 0" />
+
+    <ImageView
+        android:id="@+id/imageViewPlayer2"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewScore"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/tank_player2"
+        tools:layout_editor_absoluteY="0dp" />
 
     <com.tikhonov.tanksBattle.BattleFieldView
         android:id="@+id/battleFieldView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/colorGrey"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarPower" />
+
+    <SeekBar
+        android:id="@+id/seekBarPower"
+        style="@style/Widget.AppCompat.SeekBar"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:max="10"
+        android:progress="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewShotPower" />
+
+    <TextView
+        android:id="@+id/textViewShotPower"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/shotPower"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.048"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonNewGame" />
+
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
