@@ -12,12 +12,15 @@ object GeometryUtils {
         val angleSign = if (ax * by - ay * bx > 0) -1 else 1
         val angle = acos(cos) * 180 / Math.PI * angleSign
         if (angle.isNaN()) return 0.0
-        return angle * BattleFieldView.angleDelay
+
+        // TODO replace 0.2 with GameParameters.angleDelay
+
+        return angle * 0.2
     }
 
     fun calculateCurrentXY(xInitial:Int, yInitial:Int, step: Int, angle: Double, shotPower: Int): CoordXY {
 
-        val g = 0.05
+        val g = 0.03
 
         val currentX =  xInitial + (step * cos(angle) * shotPower).roundToInt()
         val currentY =  (yInitial + step * sin(angle) * shotPower + g * step.toFloat().pow(2) / 2).roundToInt()
@@ -26,5 +29,11 @@ object GeometryUtils {
 
     fun calculateAngleInRadian(angleGrad: Int): Double {
         return angleGrad * Math.PI / 180
+    }
+
+    fun pointIsInsideCircle(coordPoint:CoordXY, coordCircleCenter: CoordXY, radius: Int): Boolean {
+        //val circleCenter = CoordXY(coordTank.x + width/2, coordTank.y + height/2)
+        val distance = sqrt((coordCircleCenter.x - coordPoint.x).toFloat().pow(2) + (coordCircleCenter.y - coordPoint.y).toFloat().pow(2))
+        return distance < radius
     }
 }

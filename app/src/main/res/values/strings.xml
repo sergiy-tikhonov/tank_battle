@@ -4,4 +4,6 @@
     <string name="newGame">New Game</string>
     <string name="shotPower">Shot Power</string>
     <string name="score" translatable="false">%1$d - %2$d</string>
+    <string name="firstPlayerWon">First player won! Score: %1$d - %2$d</string>
+    <string name="secondPlayerWon">Second player won! Score: %1$d - %2$d</string>
 </resources>

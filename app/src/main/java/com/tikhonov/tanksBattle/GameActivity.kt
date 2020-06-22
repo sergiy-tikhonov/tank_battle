@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_battle_field.*
 
-class BattleFieldActivity: AppCompatActivity() {
+class GameActivity: AppCompatActivity() {
 
     var scorePlayer1 = 0
     var scorePlayer2 = 0
@@ -28,9 +28,6 @@ class BattleFieldActivity: AppCompatActivity() {
             scorePlayer2 = it.getInt(keyScorePlayer2)
         }
 
-        updateScore()
-
-        battleFieldView.newGame()
         setFieldBackGround()
 
         buttonBang.setOnClickListener {
@@ -50,7 +47,7 @@ class BattleFieldActivity: AppCompatActivity() {
         rootLayout.background = bitmapDrawable
     }
 
-    fun updateScore() {
+    fun updateScore(scorePlayer1: Int, scorePlayer2: Int) {
         textViewScore.text = resources.getString(R.string.score, scorePlayer1, scorePlayer2)
     }
 
