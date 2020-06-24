@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
     <style name="CommonButtonOutlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:textSize">14sp</item>
@@ -16,6 +16,11 @@
         <item name="cornerRadius">15dp</item>
         <item name="android:textColor">@color/colorPrimary</item>
 
+    </style>
+    <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/dialogButtonText</item>
+        <item name="android:textColor">@color/dialogButtonText</item>
+        <item name="colorAccent">@color/dialogButtonText</item>
     </style>
 
 </resources>

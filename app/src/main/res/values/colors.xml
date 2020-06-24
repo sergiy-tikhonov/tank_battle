@@ -2,7 +2,8 @@
 <resources>
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#F7F9FA</color>
+    <color name="colorAccent">#BA0642</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorGrey">#B0CA92</color>
+    <color name="dialogButtonText">#008577</color>
 </resources>

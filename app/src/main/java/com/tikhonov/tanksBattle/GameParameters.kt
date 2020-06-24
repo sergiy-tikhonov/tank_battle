@@ -1,7 +1,6 @@
 package com.tikhonov.tanksBattle
 
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Paint
 
 class GameParameters {

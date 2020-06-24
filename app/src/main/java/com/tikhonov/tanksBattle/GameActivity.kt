@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.animation.AnimationUtils
 import kotlinx.android.synthetic.main.activity_battle_field.*
 
 class GameActivity: AppCompatActivity() {
@@ -31,6 +32,7 @@ class GameActivity: AppCompatActivity() {
         setFieldBackGround()
 
         buttonBang.setOnClickListener {
+            it.startAnimation(android.view.animation.AnimationUtils.loadAnimation(this, R.anim.button_shot))
             battleFieldView.bang()
         }
 

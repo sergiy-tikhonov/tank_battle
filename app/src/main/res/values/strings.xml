@@ -6,4 +6,6 @@
     <string name="score" translatable="false">%1$d - %2$d</string>
     <string name="firstPlayerWon">First player won! Score: %1$d - %2$d</string>
     <string name="secondPlayerWon">Second player won! Score: %1$d - %2$d</string>
+    <string name="gameIsOver">Game is over!</string>
+    <string name="gotIt">Got it!</string>
 </resources>

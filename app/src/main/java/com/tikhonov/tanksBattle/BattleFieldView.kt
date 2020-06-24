@@ -2,11 +2,16 @@ package com.tikhonov.tanksBattle
 
 import android.content.Context
 import android.graphics.*
+import android.media.MediaPlayer
+import android.os.Handler
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
-
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class BattleFieldView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
 
@@ -20,6 +25,10 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
 
     private val parentActivity = (context as GameActivity)
 
+    private val playerExplosion = MediaPlayer.create(context, R.raw.explosion)
+    private val playerCannon = MediaPlayer.create(context, R.raw.cannon)
+    private val playerCheers = MediaPlayer.create(context, R.raw.cheers)
+
     private fun initGameParameters(): GameParameters {
         val gameParameters = GameParameters()
         val colorPlayer1 = Color.RED
@@ -30,7 +39,7 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         val coord = intArrayOf(0,0)
         getLocationOnScreen(coord)
         gameParameters.pointBoardTopLeft = CoordXY(coord[0], coord[1])
-        gameParameters.tankHeight = battleFieldWidth/8
+        gameParameters.tankHeight = minOf(battleFieldWidth, battleFieldHeight) /8
         gameParameters.tankWidth = gameParameters.tankHeight
         gameParameters.bulletRadius = gameParameters.tankHeight/20
         val bitmapPlayer1Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player1)
@@ -44,7 +53,7 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         gameParameters.fireBitmap = bitmapFireScaled
 
         gameParameters.angleDelay = 0.2
-        gameParameters.numberOfTanks = 6
+        gameParameters.numberOfTanks = 2
         gameParameters.paintTank1Active = Paint().apply {
             color = colorPlayer1
             style = Paint.Style.STROKE
@@ -101,7 +110,35 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         game.shouldRedraw.observe(parentActivity, Observer {
             invalidate()
         })
+        game.eventExplosion.observe(parentActivity, EventObserver {
+            if (it) playerExplosion.start()
+        })
+
+        game.eventGameIsOver.observe(parentActivity, EventObserver {
+            if (it) {
+                playerCheers.start()
+                Handler().postDelayed({
+                    val score1 = game.scorePlayer1.value!!
+                    val score2 = game.scorePlayer2.value!!
+                    val message =
+                        if (score1 > score2) context.getString(R.string.firstPlayerWon, score1, score2)
+                        else context.getString(R.string.secondPlayerWon, score1, score2)
+                    val builder = MaterialAlertDialogBuilder(context, R.style.AlertDialogTheme)
+                        .setTitle(context.getString(R.string.gameIsOver))
+                        .setMessage(message)
+                        .setCancelable(false)
+                        builder.setPositiveButton(context.getString(R.string.gotIt)
+                        ) { dialog, _ ->
+                            newGame()
+                            postInvalidate()
+                            dialog.cancel()
+                        }
+                    builder.create().show()
+                }, 500)
+            }
+        })
     }
+
 
     fun newGame(){
         initNewGame()
@@ -109,6 +146,7 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
     }
 
     fun bang(){
+        playerCannon.start()
         game.bang()
     }
 

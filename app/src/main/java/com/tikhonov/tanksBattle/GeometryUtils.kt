@@ -32,7 +32,6 @@ object GeometryUtils {
     }
 
     fun pointIsInsideCircle(coordPoint:CoordXY, coordCircleCenter: CoordXY, radius: Int): Boolean {
-        //val circleCenter = CoordXY(coordTank.x + width/2, coordTank.y + height/2)
         val distance = sqrt((coordCircleCenter.x - coordPoint.x).toFloat().pow(2) + (coordCircleCenter.y - coordPoint.y).toFloat().pow(2))
         return distance < radius
     }

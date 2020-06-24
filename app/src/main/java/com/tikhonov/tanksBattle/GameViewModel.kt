@@ -1,7 +1,6 @@
 package com.tikhonov.tanksBattle
 
-import android.graphics.Color
-import android.graphics.Paint
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.android.synthetic.main.activity_battle_field.*
@@ -28,6 +27,8 @@ class Game: ViewModel() {
     val scorePlayer1 = MutableLiveData(0)
     val scorePlayer2 = MutableLiveData(0)
     val shouldRedraw = MutableLiveData(false)
+    val eventExplosion = MutableLiveData(Event(false))
+    val eventGameIsOver = MutableLiveData(Event(false))
 
     lateinit var parentActivity: GameActivity
 
@@ -58,7 +59,7 @@ class Game: ViewModel() {
         var fitWithGroup = false
         while (!fitWithGroup) {
             fitWithGroup = true
-            randomX1 = Random.nextInt((gameParameters.boardWidth * 0.1).toInt(), (gameParameters.boardWidth * 0.3).toInt())
+            randomX1 = Random.nextInt(gameParameters.tankWidth, gameParameters.boardWidth/2 - gameParameters.tankWidth)
             randomY1 = Random.nextInt(gameParameters.tankHeight, gameParameters.boardHeight - gameParameters.tankHeight)
             for (groupMember in tankGroupPlayer1)
                 if (GeometryUtils.pointIsInsideCircle(CoordXY(randomX1, randomY1), groupMember.centerPoint(), 2 * groupMember.width)) {
@@ -91,7 +92,7 @@ class Game: ViewModel() {
 
         while (!fitWithGroup) {
             fitWithGroup = true
-            randomX2 = Random.nextInt((gameParameters.boardWidth * 0.6).toInt(), (gameParameters.boardWidth * 0.8).toInt())
+            randomX2 = Random.nextInt(gameParameters.boardWidth/2 + gameParameters.tankWidth, gameParameters.boardWidth - gameParameters.tankWidth)
             randomY2 = Random.nextInt(gameParameters.tankHeight, gameParameters.boardHeight - gameParameters.tankHeight)
             for (groupMember in tankGroupPlayer2)
                 if (GeometryUtils.pointIsInsideCircle(CoordXY(randomX2, randomY2), groupMember.centerPoint(), 2 * groupMember.width)) {
@@ -134,9 +135,11 @@ class Game: ViewModel() {
             loop@ while (bullet.coordActual != null) {
                 for (target in targets) {
                     if (GeometryUtils.pointIsInsideCircle(bullet.coordActual!!, target.centerPoint(),target.height/2)) {
+                        eventExplosion.postValue(Event(true))
                         target.destroyed = true
                         if (whoseTurn == WhoseTurn.FIRST) scorePlayer1.postValue(scorePlayer1.value!! + 1)
                         else scorePlayer2.postValue(scorePlayer2.value!! + 1)
+                        if (target == tankPlayer1 || target == tankPlayer2) eventGameIsOver.postValue(Event(true))
                         break@loop
                     }
                 }
