@@ -1,6 +1,5 @@
 package com.tikhonov.tanksBattle
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.android.synthetic.main.activity_battle_field.*
@@ -13,7 +12,7 @@ enum class WhoseTurn {
     FIRST, SECOND
 }
 
-class Game: ViewModel() {
+class GameViewModel: ViewModel() {
 
     lateinit var gameParameters: GameParameters
     lateinit var tankPlayer1: Tank
@@ -30,19 +29,27 @@ class Game: ViewModel() {
     val eventExplosion = MutableLiveData(Event(false))
     val eventGameIsOver = MutableLiveData(Event(false))
 
+    var shotPowerPlayer1 = 0
+    var shotPowerPlayer2 = 0
+    val shotPower = MutableLiveData(0)
+
     lateinit var parentActivity: GameActivity
 
     fun newGame() {
+
+        tankGroupPlayer1.clear()
+        tankGroupPlayer2.clear()
         whoseTurn = WhoseTurn.FIRST
         for (tankIndex in 0 until gameParameters.numberOfTanks) {
-            initTankPlayer1()
+            initTank(whoseTurn)
         }
         tankPlayer1 = tankGroupPlayer1[0]
+        whoseTurn = WhoseTurn.SECOND
         for (tankIndex in 0 until gameParameters.numberOfTanks) {
-            initTankPlayer2()
+            initTank(whoseTurn)
         }
         tankPlayer2 = tankGroupPlayer2[0]
-
+        whoseTurn = WhoseTurn.FIRST
         initBullet()
     }
 
@@ -52,69 +59,60 @@ class Game: ViewModel() {
 
     }
 
-    private fun initTankPlayer1() {
+    private fun initTank(whoseTurn: WhoseTurn){
+        lateinit var tankGroup: MutableList<Tank>
         val tank = Tank()
-        var randomX1 = 0
-        var randomY1 = 0
+        if (whoseTurn == WhoseTurn.FIRST) {
+            tank.apply {
+                fromLeftToRight = true
+                bitmapActual = gameParameters.tank1Bitmap
+                bitmapOriginal = gameParameters.tank1Bitmap
+            }
+            tankGroup = tankGroupPlayer1
+        }
+
+        else {
+            tank.apply {
+                fromLeftToRight = false
+                bitmapActual = gameParameters.tank2Bitmap
+                bitmapOriginal = gameParameters.tank2Bitmap
+            }
+            tankGroup = tankGroupPlayer2
+        }
+
+        var randomX = 0
+        var randomY = 0
+
         var fitWithGroup = false
         while (!fitWithGroup) {
             fitWithGroup = true
-            randomX1 = Random.nextInt(gameParameters.tankWidth, gameParameters.boardWidth/2 - gameParameters.tankWidth)
-            randomY1 = Random.nextInt(gameParameters.tankHeight, gameParameters.boardHeight - gameParameters.tankHeight)
-            for (groupMember in tankGroupPlayer1)
-                if (GeometryUtils.pointIsInsideCircle(CoordXY(randomX1, randomY1), groupMember.centerPoint(), 2 * groupMember.width)) {
+            if (whoseTurn == WhoseTurn.FIRST) {
+                randomX = Random.nextInt(gameParameters.tankWidth, gameParameters.boardWidth / 2 - gameParameters.tankWidth)
+                randomY = Random.nextInt(gameParameters.tankHeight, gameParameters.boardHeight - gameParameters.tankHeight)
+            } else {
+                randomX = Random.nextInt(gameParameters.boardWidth / 2 + gameParameters.tankWidth, gameParameters.boardWidth - gameParameters.tankWidth)
+                randomY = Random.nextInt(gameParameters.tankHeight, gameParameters.boardHeight - gameParameters.tankHeight)
+            }
+            for (groupMember in tankGroup){
+                if (GeometryUtils.pointIsInsideCircle(randomX, randomY, groupMember.centerPoint.x, groupMember.centerPoint.y, 2*groupMember.width)) {
                     fitWithGroup = false
                     break
                 }
+            }
         }
 
         tank.apply {
-            coordTank = CoordXY(randomX1, randomY1)
-            val bullet1StartX = coordTank.x + gameParameters.tankWidth
+            coordTank = CoordXY(randomX, randomY)
+            width = gameParameters.tankWidth
+            height = gameParameters.tankHeight
+            val bullet1StartX = coordTank.x + if (whoseTurn == WhoseTurn.FIRST) gameParameters.tankWidth else 0
             val bullet1StartY = coordTank.y + gameParameters.tankHeight /2
             coordBulletInitialOriginal = CoordXY(bullet1StartX, bullet1StartY)
             coordBulletInitialActual = CoordXY(bullet1StartX, bullet1StartY)
-            fromLeftToRight = true
-            angle = 0.0
-            bitmapOriginal = gameParameters.tank1Bitmap
-            bitmapActual = gameParameters.tank1Bitmap
-            width = gameParameters.tankWidth
-            height = gameParameters.tankHeight
+            setCenterPoint()
         }
-        tankGroupPlayer1.add(tank)
-    }
+        tankGroup.add(tank)
 
-    private fun initTankPlayer2() {
-        val tank = Tank()
-        var randomX2 = 0
-        var randomY2 = 0
-        var fitWithGroup = false
-
-        while (!fitWithGroup) {
-            fitWithGroup = true
-            randomX2 = Random.nextInt(gameParameters.boardWidth/2 + gameParameters.tankWidth, gameParameters.boardWidth - gameParameters.tankWidth)
-            randomY2 = Random.nextInt(gameParameters.tankHeight, gameParameters.boardHeight - gameParameters.tankHeight)
-            for (groupMember in tankGroupPlayer2)
-                if (GeometryUtils.pointIsInsideCircle(CoordXY(randomX2, randomY2), groupMember.centerPoint(), 2 * groupMember.width)) {
-                    fitWithGroup = false
-                    break
-                }
-        }
-
-        tank.apply {
-            coordTank = CoordXY(randomX2, randomY2)
-            val bullet2StartX = coordTank.x
-            val bullet2StartY = coordTank.y + gameParameters.tankHeight /2
-            coordBulletInitialOriginal = CoordXY(bullet2StartX, bullet2StartY)
-            coordBulletInitialActual = CoordXY(bullet2StartX, bullet2StartY)
-            fromLeftToRight = false
-            angle = 0.0
-            bitmapOriginal = gameParameters.tank2Bitmap
-            bitmapActual = gameParameters.tank2Bitmap
-            width = gameParameters.tankWidth
-            height = gameParameters.tankHeight
-        }
-        tankGroupPlayer2.add(tank)
     }
 
     fun bang() {
@@ -125,8 +123,7 @@ class Game: ViewModel() {
             if (whoseTurn == WhoseTurn.FIRST) tankPlayer1 else tankPlayer2,
             if (whoseTurn == WhoseTurn.FIRST) tankPlayer2 else tankPlayer1,
             whoseTurn,
-            parentActivity.seekBarPower.progress
-
+            if (whoseTurn == WhoseTurn.FIRST) shotPowerPlayer1 else shotPowerPlayer2
         )
         var targets = if (whoseTurn == WhoseTurn.FIRST) tankGroupPlayer2.filter { !it.destroyed } else tankGroupPlayer1.filter { !it.destroyed }
         if (targets.size > 1) targets = targets.drop(1)
@@ -134,7 +131,7 @@ class Game: ViewModel() {
         GlobalScope.launch {
             loop@ while (bullet.coordActual != null) {
                 for (target in targets) {
-                    if (GeometryUtils.pointIsInsideCircle(bullet.coordActual!!, target.centerPoint(),target.height/2)) {
+                    if (GeometryUtils.pointIsInsideCircle(bullet.coordActual!!.x, bullet.coordActual!!.y, target.centerPoint.x, target.centerPoint.y, target.height/2)) {
                         eventExplosion.postValue(Event(true))
                         target.destroyed = true
                         if (whoseTurn == WhoseTurn.FIRST) scorePlayer1.postValue(scorePlayer1.value!! + 1)
@@ -149,8 +146,8 @@ class Game: ViewModel() {
             }
             bullet.setVisible(false)
             whoseTurn = if (whoseTurn == WhoseTurn.FIRST) WhoseTurn.SECOND else WhoseTurn.FIRST
+            shotPower.postValue(if (whoseTurn == WhoseTurn.FIRST) shotPowerPlayer1 else shotPowerPlayer2)
             shouldRedraw.postValue(true)
-
         }
     }
 

@@ -7,5 +7,6 @@
     <string name="firstPlayerWon">Выиграл первый игрок! Счет: %1$d - %2$d</string>
     <string name="secondPlayerWon">Выиграл второй игрок! Счет: %1$d - %2$d</string>
     <string name="gameIsOver">Игра окончена!</string>
-    <string name="gotIt">Понятно!</string>
+    <string name="startNextGame">Начать новую игру</string>
+    <string name="leaveTheApp">Выйти из приложения</string>
 </resources>

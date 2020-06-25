@@ -2,38 +2,26 @@ package com.tikhonov.tanksBattle
 
 import android.content.Context
 import android.graphics.*
-import android.media.MediaPlayer
-import android.os.Handler
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class BattleFieldView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
 
     private var battleFieldHeight = 0
     private var battleFieldWidth = 0
 
-    private lateinit var game: Game
+    private lateinit var game: GameViewModel
 
     private var startCoord = CoordXY()
     private var endCoord = CoordXY()
 
     private val parentActivity = (context as GameActivity)
 
-    private val playerExplosion = MediaPlayer.create(context, R.raw.explosion)
-    private val playerCannon = MediaPlayer.create(context, R.raw.cannon)
-    private val playerCheers = MediaPlayer.create(context, R.raw.cheers)
-
     private fun initGameParameters(): GameParameters {
         val gameParameters = GameParameters()
         val colorPlayer1 = Color.RED
         val colorPlayer2 = Color.BLUE
-        val colorDestroyed = Color.BLACK
         gameParameters.boardWidth = battleFieldWidth
         gameParameters.boardHeight = battleFieldHeight
         val coord = intArrayOf(0,0)
@@ -45,15 +33,17 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         val bitmapPlayer1Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player1)
         val bitmapPlayer1Scaled = Bitmap.createScaledBitmap(bitmapPlayer1Original, gameParameters.tankWidth, gameParameters.tankHeight, false)
         gameParameters.tank1Bitmap = bitmapPlayer1Scaled
+
         val bitmapPlayer2Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player2)
         val bitmapPlayer2Scaled = Bitmap.createScaledBitmap(bitmapPlayer2Original, gameParameters.tankWidth, gameParameters.tankHeight, false)
         gameParameters.tank2Bitmap = bitmapPlayer2Scaled
+
         val bitmapFireOriginal = BitmapFactory.decodeResource(context.resources, R.drawable.fire)
         val bitmapFireScaled = Bitmap.createScaledBitmap(bitmapFireOriginal, gameParameters.tankWidth/2, gameParameters.tankHeight/2, false)
         gameParameters.fireBitmap = bitmapFireScaled
 
         gameParameters.angleDelay = 0.2
-        gameParameters.numberOfTanks = 2
+        gameParameters.numberOfTanks = 5
         gameParameters.paintTank1Active = Paint().apply {
             color = colorPlayer1
             style = Paint.Style.STROKE
@@ -62,7 +52,7 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         gameParameters.paintTank1Inactive = Paint().apply {
             color = colorPlayer1
             style = Paint.Style.STROKE
-            strokeWidth = 1f
+            strokeWidth = 2f
         }
         gameParameters.paintTank2Active = Paint().apply {
             color = colorPlayer2
@@ -72,12 +62,7 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         gameParameters.paintTank2Inactive = Paint().apply {
             color = colorPlayer2
             style = Paint.Style.STROKE
-            strokeWidth = 1f
-        }
-        gameParameters.paintTankDestroyed = Paint().apply {
-            color = colorDestroyed
-            style = Paint.Style.STROKE
-            strokeWidth = 3f
+            strokeWidth = 2f
         }
         gameParameters.paintBullet1 = Paint().apply {
             color = colorPlayer1
@@ -92,53 +77,11 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
 
     private fun initNewGame(){
         val gameParameters = initGameParameters()
-        game = Game()
+        game = parentActivity.gameViewModel
         game.parentActivity = (context as GameActivity)
         game.gameParameters = gameParameters
         game.newGame()
-
-        game.scorePlayer1.observe(parentActivity,  Observer{ scorePlayer1 ->
-            parentActivity.runOnUiThread{
-                parentActivity.updateScore(scorePlayer1, game.scorePlayer2.value!!)
-            }
-        })
-        game.scorePlayer2.observe(parentActivity,  Observer{ scorePlayer2 ->
-            parentActivity.runOnUiThread{
-                parentActivity.updateScore(game.scorePlayer1.value!!, scorePlayer2)
-            }
-        })
-        game.shouldRedraw.observe(parentActivity, Observer {
-            invalidate()
-        })
-        game.eventExplosion.observe(parentActivity, EventObserver {
-            if (it) playerExplosion.start()
-        })
-
-        game.eventGameIsOver.observe(parentActivity, EventObserver {
-            if (it) {
-                playerCheers.start()
-                Handler().postDelayed({
-                    val score1 = game.scorePlayer1.value!!
-                    val score2 = game.scorePlayer2.value!!
-                    val message =
-                        if (score1 > score2) context.getString(R.string.firstPlayerWon, score1, score2)
-                        else context.getString(R.string.secondPlayerWon, score1, score2)
-                    val builder = MaterialAlertDialogBuilder(context, R.style.AlertDialogTheme)
-                        .setTitle(context.getString(R.string.gameIsOver))
-                        .setMessage(message)
-                        .setCancelable(false)
-                        builder.setPositiveButton(context.getString(R.string.gotIt)
-                        ) { dialog, _ ->
-                            newGame()
-                            postInvalidate()
-                            dialog.cancel()
-                        }
-                    builder.create().show()
-                }, 500)
-            }
-        })
     }
-
 
     fun newGame(){
         initNewGame()
@@ -146,16 +89,14 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
     }
 
     fun bang(){
-        playerCannon.start()
+        parentActivity.playerCannon.start()
         game.bang()
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        drawTank(canvas, game.tankPlayer1)
         for (tankIndex in game.tankGroupPlayer1.indices)
             drawTank(canvas, game.tankGroupPlayer1[tankIndex])
-        drawTank(canvas, game.tankPlayer2)
         for (tankIndex in game.tankGroupPlayer2.indices)
             drawTank(canvas, game.tankGroupPlayer2[tankIndex])
         drawBullet(canvas, game.bullet)
@@ -164,14 +105,14 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
     private fun drawTank(canvas: Canvas?, tank: Tank) {
 
         with(tank) {
-            canvas?.rotate(angle.toFloat(), (coordTank.x + width/2).toFloat(), (coordTank.y + height/2).toFloat())
-            tank.bitmapOriginal?.let {
-                canvas?.drawBitmap(bitmapOriginal!!, coordTank.x.toFloat(), coordTank.y.toFloat(), game.gameParameters.paintTank1Inactive)
-            }
+            if (angle != 0.0) canvas?.rotate(angle.toFloat(), (coordTank.x + width/2).toFloat(), (coordTank.y + height/2).toFloat())
+
+            canvas?.drawBitmap(tank.bitmapOriginal, coordTank.x.toFloat(), coordTank.y.toFloat(), game.gameParameters.paintTank1Inactive)
+
             if (tank.destroyed) {
-                canvas?.drawBitmap(game.gameParameters.fireBitmap!!, coordTank.x.toFloat() + width/4, coordTank.y.toFloat(), game.gameParameters.paintTank1Inactive)
+                canvas?.drawBitmap(game.gameParameters.fireBitmap, coordTank.x.toFloat() + width/4, coordTank.y.toFloat(), game.gameParameters.paintTank1Inactive)
             }
-            canvas?.rotate(-this.angle.toFloat(), (coordTank.x + width/2).toFloat(), (coordTank.y + height/2).toFloat())
+            if (angle != 0.0) canvas?.rotate(-this.angle.toFloat(), (coordTank.x + width/2).toFloat(), (coordTank.y + height/2).toFloat())
 
             if (tank == game.tankPlayer1 || tank == game.tankPlayer2)
                 canvas?.drawCircle(
@@ -188,7 +129,7 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
             game.whoseTurn == WhoseTurn.FIRST && tank == game.tankPlayer1 -> game.gameParameters.paintTank1Active
             game.whoseTurn == WhoseTurn.FIRST && tank == game.tankPlayer2 -> game.gameParameters.paintTank2Inactive
             game.whoseTurn == WhoseTurn.SECOND && tank == game.tankPlayer2 -> game.gameParameters.paintTank2Active
-            else -> game.gameParameters.paintTank2Inactive
+            else -> game.gameParameters.paintTank1Inactive
         }
     }
 

@@ -15,7 +15,6 @@ class Bullet {
     var coordActual: CoordXY? = CoordXY(0, 0)
     var coordInitial = CoordXY(0, 0)
     var step = 0
-    //lateinit var paint: Paint
 
     fun assignToTank(tank: Tank, target: Tank, whoseTurn: WhoseTurn, shotPower: Int) {
         coordInitial = CoordXY(tank.coordBulletInitialActual.x, tank.coordBulletInitialActual.y)
@@ -26,10 +25,6 @@ class Bullet {
         isVisible = true
         this.whoseTurn = whoseTurn
         this.shotPower = shotPower
-        /*paint = Paint().apply {
-            color = if (whoseTurn == WhoseTurn.FIRST) gameParameters.paintTank1Active.color else gameParameters.paintTank2Active.color
-            style = Paint.Style.FILL
-        }*/
     }
 
     fun setVisible(visible: Boolean) {

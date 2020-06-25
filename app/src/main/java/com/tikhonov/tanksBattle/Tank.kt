@@ -11,8 +11,9 @@ class Tank {
     var coordBulletInitialOriginal= CoordXY(0,0)
     var coordBulletInitialActual= CoordXY(0,0)
     var angle: Double = 0.0
-    var bitmapOriginal: Bitmap? = null
-    var bitmapActual: Bitmap? = null
+    lateinit var bitmapOriginal: Bitmap
+    lateinit var bitmapActual: Bitmap
+    lateinit var centerPoint: CoordXY
 
     fun rotate(startPoint: CoordXY, endPoint: CoordXY) {
         val coordTankCenter = CoordXY(coordTank.x + this.width/2, coordTank.y + this.height/2)
@@ -20,9 +21,9 @@ class Tank {
         val matrixPlayer1 = Matrix().apply {
             postRotate(angle.toFloat(), coordTankCenter.x.toFloat(), coordTankCenter.y.toFloat())
         }
-        val tankBitmapPlayer1 = Bitmap.createBitmap(bitmapOriginal!!, 0, 0,
-            bitmapOriginal!!.width,
-            bitmapOriginal!!.height, matrixPlayer1, true)
+        val tankBitmapPlayer1 = Bitmap.createBitmap(bitmapOriginal, 0, 0,
+            bitmapOriginal.width,
+            bitmapOriginal.height, matrixPlayer1, true)
         bitmapActual = tankBitmapPlayer1
 
         val matrixBullet = Matrix().apply {
@@ -35,10 +36,8 @@ class Tank {
         coordBulletInitialActual = CoordXY(pointsArray[0].toInt(), pointsArray[1].toInt())
     }
 
-    fun centerPoint(): CoordXY {
-        val centerX = coordTank.x + width/2
-        val centerY = coordTank.y + height/2
-        return CoordXY(centerX, centerY)
+    fun setCenterPoint() {
+        centerPoint = CoordXY(coordTank.x + width/2, coordTank.y + height/2)
     }
 
 }

@@ -17,7 +17,6 @@ class GameParameters {
     var numberOfTanks = 5
     lateinit var paintTank1Active: Paint
     lateinit var paintTank1Inactive: Paint
-    lateinit var paintTankDestroyed: Paint
     lateinit var paintTank2Active: Paint
     lateinit var paintTank2Inactive: Paint
     lateinit var paintBullet1: Paint

@@ -31,8 +31,8 @@ object GeometryUtils {
         return angleGrad * Math.PI / 180
     }
 
-    fun pointIsInsideCircle(coordPoint:CoordXY, coordCircleCenter: CoordXY, radius: Int): Boolean {
-        val distance = sqrt((coordCircleCenter.x - coordPoint.x).toFloat().pow(2) + (coordCircleCenter.y - coordPoint.y).toFloat().pow(2))
+    fun pointIsInsideCircle(pointX: Int, pointY: Int, centerX: Int, centerY: Int, radius: Int): Boolean {
+        val distance = sqrt((centerX - pointX).toFloat().pow(2) + (centerY - pointY).toFloat().pow(2))
         return distance < radius
     }
 }
