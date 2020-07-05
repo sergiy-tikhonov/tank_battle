@@ -13,17 +13,13 @@ object GeometryUtils {
         val angle = acos(cos) * 180 / Math.PI * angleSign
         if (angle.isNaN()) return 0.0
 
-        // TODO replace 0.2 with GameParameters.angleDelay
-
-        return angle * 0.2
+        return angle * ANGLE_DELAY
     }
 
     fun calculateCurrentXY(xInitial:Int, yInitial:Int, step: Int, angle: Double, shotPower: Int): CoordXY {
 
-        val g = 0.03
-
         val currentX =  xInitial + (step * cos(angle) * shotPower).roundToInt()
-        val currentY =  (yInitial + step * sin(angle) * shotPower + g * step.toFloat().pow(2) / 2).roundToInt()
+        val currentY =  (yInitial + step * sin(angle) * shotPower + KOEF_BULLET_GRAVITATION * step.toFloat().pow(2) / 2).roundToInt()
         return CoordXY(currentX, currentY)
     }
 

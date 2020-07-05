@@ -2,8 +2,7 @@ package com.tikhonov.tanksBattle
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.android.synthetic.main.activity_battle_field.*
-import kotlinx.coroutines.GlobalScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -37,6 +36,11 @@ class GameViewModel: ViewModel() {
 
     fun newGame() {
 
+        scorePlayer1.postValue(0)
+        scorePlayer2.postValue(0)
+        shotPower.postValue(0)
+        shotPowerPlayer1 = 0
+        shotPowerPlayer2 = 0
         tankGroupPlayer1.clear()
         tankGroupPlayer2.clear()
         whoseTurn = WhoseTurn.FIRST
@@ -49,7 +53,11 @@ class GameViewModel: ViewModel() {
             initTank(whoseTurn)
         }
         tankPlayer2 = tankGroupPlayer2[0]
-        whoseTurn = WhoseTurn.FIRST
+        when (Random.nextInt(2)) {
+            0 -> whoseTurn = WhoseTurn.FIRST
+            1 -> whoseTurn = WhoseTurn.SECOND
+
+        }
         initBullet()
     }
 
@@ -128,7 +136,7 @@ class GameViewModel: ViewModel() {
         var targets = if (whoseTurn == WhoseTurn.FIRST) tankGroupPlayer2.filter { !it.destroyed } else tankGroupPlayer1.filter { !it.destroyed }
         if (targets.size > 1) targets = targets.drop(1)
         bullet.setVisible(true)
-        GlobalScope.launch {
+        viewModelScope.launch {
             loop@ while (bullet.coordActual != null) {
                 for (target in targets) {
                     if (GeometryUtils.pointIsInsideCircle(bullet.coordActual!!.x, bullet.coordActual!!.y, target.centerPoint.x, target.centerPoint.y, target.height/2)) {

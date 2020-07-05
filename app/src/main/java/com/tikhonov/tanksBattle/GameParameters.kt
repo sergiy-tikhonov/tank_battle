@@ -13,8 +13,8 @@ class GameParameters {
     lateinit var tank1Bitmap: Bitmap
     lateinit var tank2Bitmap: Bitmap
     lateinit var fireBitmap: Bitmap
-    var angleDelay = 0.0
-    var numberOfTanks = 5
+    var angleDelay = ANGLE_DELAY
+    var numberOfTanks = NUMBER_OF_TANKS
     lateinit var paintTank1Active: Paint
     lateinit var paintTank1Inactive: Paint
     lateinit var paintTank2Active: Paint

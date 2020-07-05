@@ -1,5 +1,6 @@
 package com.tikhonov.tanksBattle
 
+import android.content.pm.ActivityInfo
 import android.graphics.BitmapFactory
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
@@ -9,6 +10,7 @@ import android.os.Handler
 import android.os.PersistableBundle
 import android.util.Log
 import android.widget.SeekBar
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.google.android.material.animation.AnimationUtils
@@ -16,8 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_battle_field.*
 
 class GameActivity: AppCompatActivity() {
-
-    var gameViewModel = GameViewModel()
+    val gameViewModel: GameViewModel by viewModels()
 
     private lateinit var playerExplosion: MediaPlayer
     lateinit var playerCannon : MediaPlayer
@@ -25,6 +26,7 @@ class GameActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         setContentView(R.layout.activity_battle_field)
 
         playerExplosion = MediaPlayer.create(this, R.raw.explosion)
@@ -97,7 +99,7 @@ class GameActivity: AppCompatActivity() {
                         dialog.cancel()
                     }
                     builder.setNegativeButton(getString(R.string.leaveTheApp)
-                    ) { dialog, _ ->
+                    ) { _, _ ->
                         finish()
                     }
                     builder.create().show()

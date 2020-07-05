@@ -27,9 +27,9 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         val coord = intArrayOf(0,0)
         getLocationOnScreen(coord)
         gameParameters.pointBoardTopLeft = CoordXY(coord[0], coord[1])
-        gameParameters.tankHeight = minOf(battleFieldWidth, battleFieldHeight) /8
+        gameParameters.tankHeight = minOf(battleFieldWidth, battleFieldHeight) / BATTLEFIELD_HEIGHT_TO_TANK_HEIGHT
         gameParameters.tankWidth = gameParameters.tankHeight
-        gameParameters.bulletRadius = gameParameters.tankHeight/20
+        gameParameters.bulletRadius = gameParameters.tankHeight / TANK_HEIGHT_TO_BULLET_RADIUS
         val bitmapPlayer1Original = BitmapFactory.decodeResource(context.resources, R.drawable.tank_player1)
         val bitmapPlayer1Scaled = Bitmap.createScaledBitmap(bitmapPlayer1Original, gameParameters.tankWidth, gameParameters.tankHeight, false)
         gameParameters.tank1Bitmap = bitmapPlayer1Scaled
@@ -42,27 +42,27 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
         val bitmapFireScaled = Bitmap.createScaledBitmap(bitmapFireOriginal, gameParameters.tankWidth/2, gameParameters.tankHeight/2, false)
         gameParameters.fireBitmap = bitmapFireScaled
 
-        gameParameters.angleDelay = 0.2
-        gameParameters.numberOfTanks = 5
+        gameParameters.angleDelay = ANGLE_DELAY
+        gameParameters.numberOfTanks = NUMBER_OF_TANKS
         gameParameters.paintTank1Active = Paint().apply {
             color = colorPlayer1
             style = Paint.Style.STROKE
-            strokeWidth = 5f
+            strokeWidth = STROKE_WIDTH_ACTIVE
         }
         gameParameters.paintTank1Inactive = Paint().apply {
             color = colorPlayer1
             style = Paint.Style.STROKE
-            strokeWidth = 2f
+            strokeWidth = STROKE_WIDTH_INACTIVE
         }
         gameParameters.paintTank2Active = Paint().apply {
             color = colorPlayer2
             style = Paint.Style.STROKE
-            strokeWidth = 5f
+            strokeWidth = STROKE_WIDTH_ACTIVE
         }
         gameParameters.paintTank2Inactive = Paint().apply {
             color = colorPlayer2
             style = Paint.Style.STROKE
-            strokeWidth = 2f
+            strokeWidth = STROKE_WIDTH_INACTIVE
         }
         gameParameters.paintBullet1 = Paint().apply {
             color = colorPlayer1
@@ -118,7 +118,7 @@ class BattleFieldView(context: Context, attributeSet: AttributeSet): View(contex
                 canvas?.drawCircle(
                     (coordTank.x + this.width/2).toFloat(),
                     (coordTank.y + this.height/2).toFloat(),
-                    (width/2*1.1).toFloat(),
+                    (width/2*KOEF_CIRCLE_AROUND_TANK).toFloat(),
                     getPaint(tank))
         }
 
